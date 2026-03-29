@@ -205,12 +205,12 @@ import { HeadAudio } from "headaudio";
 // Avatars — local files in /avatars/ (dev) or CDN (production)
 const LOCAL = "./avatars";
 const CDN = "https://raw.githubusercontent.com/met4citizen/TalkingHead/main/avatars";
-const useLocal = true; // Set false for production (Railway)
+const useLocal = !window.location.hostname.includes('railway'); // Auto-detect
 const base = useLocal ? LOCAL : CDN;
 
 const avatars = [
-  { name: "Julia", file: `${base}/avaturn.glb`, body: "F", desc: "Especialista Acciona", voice: "coral" },
-  { name: "Carlos", file: `${LOCAL}/avatoon_man.glb`, body: "M", desc: "Especialista Acciona", voice: "ash" },
+  { name: "Julia", file: `${CDN}/avaturn.glb`, body: "F", desc: "Especialista Acciona", voice: "coral" },
+  { name: "Carlos", file: `${CDN}/avatarsdk.glb`, body: "M", desc: "Especialista Acciona", voice: "ash" },
 ];
 
 // Config
