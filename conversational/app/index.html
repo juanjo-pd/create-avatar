@@ -209,7 +209,7 @@ const useLocal = !window.location.hostname.includes('railway'); // Auto-detect
 const base = useLocal ? LOCAL : CDN;
 
 const avatars = [
-  { name: "Julia", file: `${CDN}/avaturn.glb`, body: "F", desc: "Especialista Acciona", voice: "coral" },
+  { name: "Julia", file: useLocal ? `${LOCAL}/avaturn.glb` : `${CDN}/avaturn.glb`, body: "F", desc: "Especialista Acciona", voice: "coral" },
   { name: "Carlos", file: `./avatars/avatoon_man.glb`, body: "M", desc: "Especialista Acciona", voice: "ash" },
 ];
 
@@ -439,7 +439,13 @@ async function startChat(av) {
 
 // ===== WebRTC Session =====
 async function startSession(av) {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    }
+  });
   [micTrack] = stream.getAudioTracks();
 
   connection = new RTCPeerConnection();
@@ -455,8 +461,11 @@ async function startSession(av) {
   };
 
   datachannel = connection.createDataChannel("oai");
+  let sessionConfigured = false;
+
   datachannel.onopen = () => {
-    // Configure session
+    console.log("[DC] Data channel open, configuring session...");
+    // Configure session (instructions already include "preséntate")
     datachannel.send(JSON.stringify({
       type: "session.update",
       session: {
@@ -468,31 +477,53 @@ async function startSession(av) {
         tools: functions,
       }
     }));
-    // Initial message
-    datachannel.send(JSON.stringify({
-      type: "response.create",
-      response: {
-        input: [{
-          type: "message",
-          role: "system",
-          content: [{ type: "input_text", text: "Preséntate brevemente y pregunta en qué puedes ayudar." }]
-        }]
-      }
-    }));
     $('status').textContent = "🎤 Escuchando...";
   };
 
   datachannel.onmessage = (event) => {
     const msg = JSON.parse(event.data);
+    console.log("[OAI]", msg.type, msg);
+
     switch (msg.type) {
+      case "session.created":
+      case "session.updated":
+        // Send initial greeting ONLY once after session is configured
+        if (!sessionConfigured) {
+          sessionConfigured = true;
+          console.log("[DC] Session configured, sending initial greeting");
+          datachannel.send(JSON.stringify({
+            type: "response.create",
+            response: {
+              input: [{
+                type: "message",
+                role: "system",
+                content: [{ type: "input_text", text: "Preséntate brevemente y pregunta en qué puedes ayudar." }]
+              }]
+            }
+          }));
+        }
+        break;
       case "output_audio_buffer.started":
         head.isSpeaking = true;
         $('status').textContent = "💬 Hablando...";
+        // Mute mic while avatar speaks to prevent echo feedback
+        if (micTrack) micTrack.enabled = false;
+        console.log("[MIC] Muted (avatar speaking)");
         break;
       case "output_audio_buffer.stopped":
         head.isSpeaking = false;
         $('status').textContent = "🎤 Escuchando...";
+        // Re-enable mic after avatar finishes (small delay to avoid echo tail)
+        setTimeout(() => {
+          if (micTrack && !$('btnMute').textContent.includes('Activar')) {
+            micTrack.enabled = true;
+            console.log("[MIC] Unmuted (avatar stopped)");
+          }
+        }, 300);
         if (isClosing) endSession();
+        break;
+      case "error":
+        console.error("[OAI] Error:", msg.error);
         break;
       case "response.function_call_arguments.done":
         handleFunctionCall(msg);
