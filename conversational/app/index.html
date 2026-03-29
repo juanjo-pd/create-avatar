@@ -202,16 +202,15 @@ import { TalkingHead } from "talkinghead";
 import { HeadAudio } from "headaudio";
 
 // Avatar catalog
-// Avatars served from TalkingHead GitHub repo
+// Avatars — local files in /avatars/ (dev) or CDN (production)
+const LOCAL = "./avatars";
 const CDN = "https://raw.githubusercontent.com/met4citizen/TalkingHead/main/avatars";
+const useLocal = true; // Set false for production (Railway)
+const base = useLocal ? LOCAL : CDN;
+
 const avatars = [
-  {
-    name: "Julia",
-    file: `${CDN}/avaturn.glb`,
-    body: "F",
-    desc: "Avaturn T2 — Estilo realista",
-    morph: "72 blendshapes + visemes",
-  },
+  { name: "Julia", file: `${base}/avaturn.glb`, body: "F", desc: "Especialista Acciona", voice: "coral" },
+  { name: "Carlos", file: `${LOCAL}/avatoon_man.glb`, body: "M", desc: "Especialista Acciona", voice: "ash" },
 ];
 
 // Config
@@ -219,18 +218,20 @@ const headaudioProcessor = "./dist/headworklet.min.mjs";
 const headaudioModel = "./dist/model-en-mixed.bin";
 
 const model = "gpt-realtime-mini";
-const voice = "coral";
-const instructions = [
-  "Te llamas Julia. Eres una especialista en Acciona, la empresa global de infraestructuras, energía renovable y agua.",
-  "Tu misión es resolver cualquier duda sobre Acciona basándote en la información de https://www.acciona.com/es/",
-  "Hablas siempre en español de España (castellano).",
-  "Tienes un avatar 3D que el usuario puede ver.",
-  "Sé concisa, clara y profesional pero cercana.",
-  "Conoces en profundidad las áreas de negocio de Acciona: energía renovable, infraestructuras, agua y ciudades sostenibles.",
-  "Si no sabes algo, dilo con honestidad y sugiere dónde encontrar la información en acciona.com.",
-  "Puedes expresar emociones usando las funciones disponibles.",
-  "Preséntate como Julia, especialista en Acciona, y pregunta en qué puedes ayudar."
-].join("\n");
+
+function getInstructions(av) {
+  return [
+    `Te llamas ${av.name}. Eres especialista en Acciona, la empresa global de infraestructuras, energía renovable y agua.`,
+    "Tu misión es resolver cualquier duda sobre Acciona basándote en la información de https://www.acciona.com/es/",
+    "Hablas siempre en español de España (castellano).",
+    "Tienes un avatar 3D que el usuario puede ver.",
+    `Sé ${av.body === 'F' ? 'concisa, clara y profesional pero cercana' : 'conciso, claro y profesional pero cercano'}.`,
+    "Conoces en profundidad las áreas de negocio de Acciona: energía renovable, infraestructuras, agua y ciudades sostenibles.",
+    "Si no sabes algo, dilo con honestidad y sugiere dónde encontrar la información en acciona.com.",
+    "Puedes expresar emociones usando las funciones disponibles.",
+    `Preséntate como ${av.name}, especialista en Acciona, y pregunta en qué puedes ayudar.`
+  ].join("\n");
+}
 
 const functions = [
   {
@@ -460,8 +461,8 @@ async function startSession(av) {
       type: "session.update",
       session: {
         modalities: ["text", "audio"],
-        instructions: instructions,
-        voice: voice,
+        instructions: getInstructions(av),
+        voice: av.voice || "coral",
         input_audio_transcription: { model: "gpt-realtime-mini" },
         turn_detection: { type: "server_vad", silence_duration_ms: 800 },
         tools: functions,
@@ -506,8 +507,8 @@ async function startSession(av) {
   fd.set("session", JSON.stringify({
     type: "realtime",
     model: model,
-    instructions: instructions,
-    audio: { output: { voice: voice } },
+    instructions: getInstructions(av),
+    audio: { output: { voice: av.voice || "coral" } },
     tools: functions,
   }));
 
@@ -572,6 +573,17 @@ function endSession() {
   if (micTrack) {
     micTrack.stop();
     micTrack = null;
+  }
+  if (headaudio) {
+    headaudio.disconnect();
+    headaudio = null;
+  }
+  if (head) {
+    head.stop();
+    // Clear the avatar container for next init
+    const avatarEl = $('avatar');
+    while (avatarEl.firstChild) avatarEl.removeChild(avatarEl.firstChild);
+    head = null;
   }
   datachannel = null;
   isClosing = false;
