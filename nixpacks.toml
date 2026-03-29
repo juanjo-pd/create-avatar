@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["python3"]
+
+[phases.build]
+cmds = []
+
+[start]
+cmd = "python3 conversational/app/server.py"
