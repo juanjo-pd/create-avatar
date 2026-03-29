@@ -49,8 +49,9 @@ Thumbs.db
 conversational/TalkingHead/
 conversational/HeadAudio/
 
-# GLB avatars (too large for git)
+# GLB avatars (too large for git, except Carlos)
 conversational/app/avatars/*.glb
+!conversational/app/avatars/avatoon_man.glb
 
 # Claude
 .claude/plans/
