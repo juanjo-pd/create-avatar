@@ -1,0 +1,17 @@
+{
+  "viseme_sil": {"mouthClose": 0.1},
+  "viseme_PP": {"mouthClose": 0.9, "mouthPressLeft": 0.6, "mouthPressRight": 0.6, "mouthPucker": 0.2},
+  "viseme_FF": {"mouthFunnel": 0.3, "mouthLowerDownLeft": 0.4, "mouthLowerDownRight": 0.4, "mouthRollLower": 0.5, "jawOpen": 0.1},
+  "viseme_TH": {"jawOpen": 0.15, "tongueOut": 0.6, "mouthLowerDownLeft": 0.2, "mouthLowerDownRight": 0.2},
+  "viseme_DD": {"jawOpen": 0.2, "mouthLowerDownLeft": 0.3, "mouthLowerDownRight": 0.3, "mouthStretchLeft": 0.1, "mouthStretchRight": 0.1},
+  "viseme_kk": {"jawOpen": 0.25, "mouthLowerDownLeft": 0.2, "mouthLowerDownRight": 0.2, "mouthStretchLeft": 0.15, "mouthStretchRight": 0.15},
+  "viseme_CH": {"jawOpen": 0.15, "mouthSmileLeft": 0.3, "mouthSmileRight": 0.3, "mouthFunnel": 0.4, "mouthStretchLeft": 0.2, "mouthStretchRight": 0.2},
+  "viseme_SS": {"jawOpen": 0.05, "mouthSmileLeft": 0.2, "mouthSmileRight": 0.2, "mouthStretchLeft": 0.3, "mouthStretchRight": 0.3},
+  "viseme_nn": {"jawOpen": 0.15, "mouthLowerDownLeft": 0.2, "mouthLowerDownRight": 0.2, "mouthSmileLeft": 0.1, "mouthSmileRight": 0.1},
+  "viseme_RR": {"jawOpen": 0.2, "mouthPucker": 0.4, "mouthFunnel": 0.3, "mouthRollLower": 0.1, "mouthRollUpper": 0.1},
+  "viseme_aa": {"jawOpen": 0.7, "mouthFunnel": 0.2, "mouthLowerDownLeft": 0.3, "mouthLowerDownRight": 0.3, "mouthUpperUpLeft": 0.2, "mouthUpperUpRight": 0.2},
+  "viseme_E": {"jawOpen": 0.3, "mouthSmileLeft": 0.4, "mouthSmileRight": 0.4, "mouthStretchLeft": 0.3, "mouthStretchRight": 0.3},
+  "viseme_I": {"jawOpen": 0.1, "mouthSmileLeft": 0.5, "mouthSmileRight": 0.5, "mouthStretchLeft": 0.4, "mouthStretchRight": 0.4},
+  "viseme_O": {"jawOpen": 0.4, "mouthFunnel": 0.6, "mouthPucker": 0.3, "mouthRollLower": 0.1, "mouthRollUpper": 0.1},
+  "viseme_U": {"jawOpen": 0.2, "mouthFunnel": 0.5, "mouthPucker": 0.7, "mouthRollLower": 0.15, "mouthRollUpper": 0.15}
+}

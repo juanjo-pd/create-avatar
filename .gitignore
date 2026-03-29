@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+*.egg
+
+# Data (large files, manual downloads)
+data/flame/*.pkl
+data/flame/*.npz
+data/flame/*.npy
+data/deca/*.tar
+data/deca/*.pt
+data/arkit_reference/*.obj
+vendor/
+
+# Output
+output/
+
+# FLAME downloads
+FLAME/
+
+# Capturas/screenshots
+capturas/
+
+# Selfies (privacy)
+selfie/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Blender
+*.blend1
+
+# Model files
+*.task
+*.onnx
+*.tflite
+
+# Cloned repos (use as submodules or install separately)
+conversational/TalkingHead/
+conversational/HeadAudio/
+
+# GLB avatars (too large for git)
+conversational/app/avatars/*.glb
+
+# Claude
+.claude/plans/
+.env
