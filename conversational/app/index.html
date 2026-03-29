@@ -203,45 +203,40 @@ import { TalkingHead } from "talkinghead";
 import { HeadAudio } from "headaudio";
 
 // Avatar catalog
+// Avatars served from TalkingHead GitHub repo (no local files needed)
+const CDN = "https://raw.githubusercontent.com/met4citizen/TalkingHead/main/avatars";
 const avatars = [
   {
     name: "Julia",
-    file: "./avatars/avaturn_t2.glb",
+    file: `${CDN}/avaturn.glb`,
     body: "F",
     desc: "Avaturn T2 — Estilo realista",
     morph: "72 blendshapes + visemes",
   },
   {
-    name: "Laura",
-    file: "./avatars/avaturn.glb",
-    body: "F",
-    desc: "Avaturn — Estilo natural",
-    morph: "72 blendshapes + visemes",
-  },
-  {
     name: "Elena",
-    file: "./avatars/brunette.glb",
+    file: `${CDN}/brunette.glb`,
     body: "F",
     desc: "RPM Wolf3D — Estilo animado",
     morph: "67 blendshapes + visemes",
   },
   {
     name: "Sara",
-    file: "./avatars/brunette-t.glb",
+    file: `${CDN}/brunette-t.glb`,
     body: "F",
     desc: "RPM Wolf3D — Versión ligera",
     morph: "67 blendshapes + visemes",
   },
   {
     name: "Carlos",
-    file: "./avatars/avatarsdk.glb",
+    file: `${CDN}/avatarsdk.glb`,
     body: "M",
     desc: "AvatarSDK — Estilo semi-realista",
     morph: "66 blendshapes + visemes",
   },
   {
     name: "David",
-    file: "./avatars/mpfb.glb",
+    file: `${CDN}/mpfb.glb`,
     body: "M",
     desc: "MakeHuman — Open source",
     morph: "66 blendshapes + visemes",
