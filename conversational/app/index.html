@@ -203,7 +203,7 @@ import { TalkingHead } from "talkinghead";
 import { HeadAudio } from "headaudio";
 
 // Avatar catalog
-// Avatars served from TalkingHead GitHub repo (no local files needed)
+// Avatars served from TalkingHead GitHub repo
 const CDN = "https://raw.githubusercontent.com/met4citizen/TalkingHead/main/avatars";
 const avatars = [
   {
@@ -212,34 +212,6 @@ const avatars = [
     body: "F",
     desc: "Avaturn T2 — Estilo realista",
     morph: "72 blendshapes + visemes",
-  },
-  {
-    name: "Elena",
-    file: `${CDN}/brunette.glb`,
-    body: "F",
-    desc: "RPM Wolf3D — Estilo animado",
-    morph: "67 blendshapes + visemes",
-  },
-  {
-    name: "Sara",
-    file: `${CDN}/brunette-t.glb`,
-    body: "F",
-    desc: "RPM Wolf3D — Versión ligera",
-    morph: "67 blendshapes + visemes",
-  },
-  {
-    name: "Carlos",
-    file: `${CDN}/avatarsdk.glb`,
-    body: "M",
-    desc: "AvatarSDK — Estilo semi-realista",
-    morph: "66 blendshapes + visemes",
-  },
-  {
-    name: "David",
-    file: `${CDN}/mpfb.glb`,
-    body: "M",
-    desc: "MakeHuman — Open source",
-    morph: "66 blendshapes + visemes",
   },
 ];
 
@@ -381,7 +353,7 @@ async function startChat(av) {
   $('loadingOverlay').textContent = `Cargando a ${av.name}...`;
 
   try {
-    // Init TalkingHead
+    // Init TalkingHead with smoother animation settings
     head = new TalkingHead($('avatar'), {
       ttsEndpoint: "N/A",
       lipsyncModules: [],
@@ -392,21 +364,52 @@ async function startChat(av) {
       lightAmbientIntensity: 0,
       lightDirectIntensity: 0,
       lightSpotIntensity: 0,
+      // Smoother transitions
+      animateSpeed: 1.0,
     });
     window.head = head;
 
-    // Init HeadAudio
+    // Init HeadAudio with smoother lip-sync
     await head.audioCtx.audioWorklet.addModule(headaudioProcessor);
-    headaudio = new HeadAudio(head.audioCtx);
+    headaudio = new HeadAudio(head.audioCtx, {
+      // Smoother viseme transitions
+      smoothing: 0.6,        // Higher = smoother (0-1)
+      threshold: 0.15,       // Ignore very small mouth movements
+    });
     await headaudio.loadModel(headaudioModel);
+
+    // Add a small audio delay to compensate for HeadAudio processing latency
+    // This syncs the lip movement with the actual audible sound
+    const delayNode = head.audioCtx.createDelay(0.15);
+    delayNode.delayTime.value = 0.08; // 80ms delay on audio output
+    // Insert delay between speech gain and the rest of the audio chain
     head.audioSpeechGainNode.connect(headaudio);
+
+    // Smooth viseme values using exponential moving average (lerp)
+    const visemeState = {};
+    const LERP_SPEED = 0.35; // 0 = no change, 1 = instant. Lower = smoother
+
     headaudio.onvalue = (key, value) => {
-      Object.assign(head.mtAvatar[key], { newvalue: value, needsUpdate: true });
+      // Initialize state
+      if (!(key in visemeState)) visemeState[key] = 0;
+
+      // Smooth interpolation
+      visemeState[key] += (value - visemeState[key]) * LERP_SPEED;
+
+      // Apply with slight overshoot damping for natural feel
+      const smoothed = visemeState[key];
+      Object.assign(head.mtAvatar[key], { newvalue: smoothed, needsUpdate: true });
     };
     head.opt.update = headaudio.update.bind(headaudio);
 
     let lastEnded = 0;
-    headaudio.onended = () => { lastEnded = Date.now(); };
+    headaudio.onended = () => {
+      lastEnded = Date.now();
+      // Smoothly return to neutral when speech ends
+      Object.keys(visemeState).forEach(key => {
+        visemeState[key] *= 0.3; // Quick fade
+      });
+    };
     headaudio.onstarted = () => {
       if (Date.now() - lastEnded > 150) {
         head.lookAtCamera(500);
